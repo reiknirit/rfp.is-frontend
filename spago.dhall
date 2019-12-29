@@ -24,6 +24,7 @@ You can edit this file as you like.
     , "routing-duplex"
     , "strings"
     , "spec"
+    , "timestamp"
     ]
 , packages =
     ./packages.dhall
