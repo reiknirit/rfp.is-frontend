@@ -14,9 +14,10 @@ import Routing.Hash                     (getHash)
 
 import Capability.Navigate              (class Navigate, navigate)
 import Component.Utils                  (OpaqueSlot)
-import Page.Home                        as Home
-import Page.Submission                as Submission
 import Data.Route                       (Route(..), routeCodec)
+import Page.Home                        as Home
+import Page.Submission                  as Submission
+import Resource.Attachment              (class ManageAttachment)
 
 type State = 
   { route :: Maybe Route }
@@ -35,6 +36,7 @@ type ChildSlots =
 component
   :: forall m 
    . MonadAff m
+  => ManageAttachment m
   => Navigate m
   => H.Component HH.HTML Query Unit Void m 
 component = H.mkComponent 

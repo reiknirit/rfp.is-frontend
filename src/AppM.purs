@@ -3,6 +3,7 @@ module AppM where
 import Prelude
 import Control.Monad.Reader.Trans   (class MonadAsk, ReaderT
                                     , ask, asks, runReaderT)
+import Data.Maybe                   (Maybe(..))
 import Effect.Aff                   (Aff)
 import Effect.Aff.Class             (class MonadAff)
 import Effect.Class                 (class MonadEffect
@@ -18,6 +19,7 @@ import Data.Environment             (Environment(..), Env)
 import Data.Log                     as Log
 import Data.Route                   as Route
 import Data.URL                     (BaseURL)
+import Resource.Attachment          (class ManageAttachment)
 
 newtype AppM a = AppM (ReaderT Env Aff a)
 
@@ -45,3 +47,6 @@ instance logMessagesAppM :: LogMessages AppM where
 instance navigateAppM :: Navigate AppM where
   navigate = 
     liftEffect <<< setHash <<< print Route.routeCodec 
+
+instance manageAttachmentAppM :: ManageAttachment AppM where
+  uploadAttachment files = pure Nothing

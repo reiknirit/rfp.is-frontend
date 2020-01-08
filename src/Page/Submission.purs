@@ -11,8 +11,9 @@ import Halogen.HTML                 as HH
 
 import Component.Utils              (OpaqueSlot)
 import Component.HTML.Utils         (css)
-import Data.Submission            (Submission)
-import Form.Submission            as SubmissionForm
+import Data.Submission              (Submission)
+import Form.Submission              as SubmissionForm
+import Resource.Attachment          (class ManageAttachment)
 
 type State = {}
 
@@ -31,6 +32,7 @@ initialState = {}
 component :: forall m
            . Monad m
           => MonadAff m
+          => ManageAttachment m
           => H.Component HH.HTML Query Unit Void m
 component =
   H.mkComponent

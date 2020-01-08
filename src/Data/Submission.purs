@@ -8,6 +8,9 @@ import Data.Generic.Rep.Show    (genericShow)
 import Data.Maybe               (Maybe(..))
 import Data.Newtype             (class Newtype)
 import Formless                 as F
+import Timestamp                (Timestamp)
+
+import Data.Attachment          (AttachmentArray)
 
 newtype SubmissionId = SubmissionId Int
 
@@ -38,6 +41,9 @@ newtype Submission = Submission
   , email :: String
   , phoneNumber :: String
   , website :: Maybe String
+  , attachments :: AttachmentArray
+  , createdAt :: Timestamp
+  , updatedAt :: Maybe Timestamp
   }
 
 derive instance newtypeSubmission :: Newtype Submission _
@@ -50,4 +56,3 @@ derive newtype instance decodeJsonSubmission :: DecodeJson Submission
 
 instance showSubmission :: Show Submission where
   show = genericShow
-

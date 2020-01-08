@@ -1,10 +1,12 @@
 module Form.Submission where
 
 import Prelude      
+import Data.Array                       (snoc)
 import Data.Const                       (Const(..))
 import Data.Maybe                       (Maybe(..))
 import Data.Newtype                     (class Newtype)
 import Data.Symbol                      (SProxy(..))
+import Data.Traversable                 (traverse)
 import Effect.Aff.Class                 (class MonadAff)
 import Formless                         as F
 import Halogen                          as H
@@ -12,11 +14,17 @@ import Halogen.HTML                     as HH
 import Halogen.HTML.Events              as HE
 import Halogen.HTML.Properties          as HP
 import Halogen.Media.Component.Upload   as Upload
+import Halogen.Media.Data.File          (ExtendedFile(..))
+import Halogen.Media.Utils              (filesToFormData)
+import Timestamp                        (Timestamp, nowTimestamp)
 
 import Component.HTML.Utils             (css, renderField)
+import Data.Attachment                  (AttachmentArray)
 import Data.Submission                  (SubmissionId(..), Submission(..))
 import Form.Error                       (FormError)
 import Form.Validation                  (validateStr, validateStrMaybe)
+import Resource.Attachment              (class ManageAttachment
+                                        ,uploadAttachment)
 
 newtype SubmissionForm r f = SubmissionForm (r
   ( id          :: f Void      SubmissionId    SubmissionId
@@ -31,12 +39,17 @@ newtype SubmissionForm r f = SubmissionForm (r
   , email       :: f FormError String          String
   , phoneNumber :: f FormError String          String
   , website     :: f Void      String          (Maybe String)
+  , attachments :: f Void      AttachmentArray AttachmentArray
+  , createdAt   :: f Void      Timestamp       Timestamp
+  , updatedAt   :: f Void      (Maybe Timestamp) (Maybe Timestamp)
   ))
 
 derive instance newtypeSubmissionForm :: Newtype (SubmissionForm r f) _
 
 prx :: F.SProxies SubmissionForm
 prx = F.mkSProxies (F.FormProxy :: F.FormProxy SubmissionForm)
+
+type AddedState = ()
 
 type Input = Unit
 type ChildSlots = (
@@ -49,6 +62,7 @@ data Action = HandleUpload Upload.Output
 component :: forall m
            . Monad m 
           => MonadAff m
+          => ManageAttachment m
           => F.Component SubmissionForm Query ChildSlots Input Submission m
 component = F.component (const input) F.defaultSpec
   { render = render
@@ -72,18 +86,48 @@ component = F.component (const input) F.defaultSpec
       , email: validateStr
       , phoneNumber: validateStr
       , website: validateStrMaybe
+      , attachments: F.noValidation
+      , createdAt: F.noValidation
+      , updatedAt: F.noValidation
       }
     }
 
+  handleAction :: Action
+               -> F.HalogenM SubmissionForm AddedState Action ChildSlots Submission m Unit
   handleAction = case _ of
-    HandleUpload output -> pure unit
+    HandleUpload output -> 
+      case output of
+        Upload.DroppedFiles files -> do
+          state <- H.get
+          formData <- H.liftEffect $ filesToFormData "file" files
+          newAttachment <- uploadAttachment formData
+          _ <- traverse (\(ExtendedFile f uuid t) -> do
+            H.query (SProxy :: SProxy "upload") unit (H.tell (Upload.SetUploadStatus uuid true))) files
+          -- add attachment to attachments
+          case newAttachment of
+            Just attachment -> do
+              let 
+                currAttachments = F.getInput prx.attachments state.form
+                newAttachments = snoc currAttachments attachment
+              eval $ F.setValidate prx.attachments newAttachments
+            Nothing -> pure unit
+          pure unit
+        _ -> pure unit
+    where
+      eval act = F.handleAction handleAction handleEvent act
 
+  handleEvent :: F.Event SubmissionForm AddedState
+              -> F.HalogenM SubmissionForm AddedState Action ChildSlots Submission m Unit
   handleEvent = case _ of
     F.Submitted form -> do
+      now <- H.liftEffect nowTimestamp
       let fields = F.unwrapOutputFields form
-      H.raise $ Submission fields
+      H.raise $ Submission fields { createdAt = now
+                                  , updatedAt = Nothing }
     _ -> pure unit
 
+  render :: F.PublicState SubmissionForm AddedState
+         -> F.ComponentHTML SubmissionForm Action ChildSlots m
   render st = 
     HH.form_
       [ renderField 

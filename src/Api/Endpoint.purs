@@ -9,7 +9,7 @@ import Routing.Duplex.Generic           (sum, noArgs)
 import Routing.Duplex.Generic.Syntax    ((/))
 
 data Endpoint 
-  = Users
+  = AttachmentUpload
 
 derive instance genericEndpoint :: Generic Endpoint _
 
@@ -18,6 +18,6 @@ instance showEndpoint :: Show Endpoint where
 
 endpointCodec :: RouteDuplex' Endpoint
 endpointCodec = root $ sum
-  { "Users": "users" / noArgs
+  { "AttachmentUpload": "attachments" / "upload" / noArgs
   }
 
