@@ -150,6 +150,13 @@ let additions =
       ]
       "https://github.com/thomashoneyman/purescript-halogen-formless.git"
       "master"
+  , halogen-media =
+      mkPackage
+      [ "dom-filereader" 
+      , "uuid"
+      ]
+      "https://github.com/naglalakk/purescript-halogen-media"
+      "master"
   , halogen-select = 
       mkPackage
       ["halogen", "record"]

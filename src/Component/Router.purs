@@ -15,6 +15,7 @@ import Routing.Hash                     (getHash)
 import Capability.Navigate              (class Navigate, navigate)
 import Component.Utils                  (OpaqueSlot)
 import Page.Home                        as Home
+import Page.Submission                as Submission
 import Data.Route                       (Route(..), routeCodec)
 
 type State = 
@@ -27,7 +28,9 @@ data Action
   = Initialize
 
 type ChildSlots = 
-  ( home :: OpaqueSlot Unit )
+  ( home :: OpaqueSlot Unit 
+  , submission :: OpaqueSlot Unit
+  )
 
 component
   :: forall m 
@@ -62,5 +65,7 @@ component = H.mkComponent
   render { route } = case route of
     Just Home -> 
       HH.slot (SProxy :: _ "home") unit Home.component unit absurd
+    Just Submission ->
+      HH.slot (SProxy :: _ "submission") unit Submission.component unit absurd
     Nothing ->
       HH.div_ [ HH.text "Oh no! That page wasn't found." ]

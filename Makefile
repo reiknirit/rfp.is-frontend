@@ -27,3 +27,7 @@ install:
 
 clean:
 	rm -rf output generated-docs
+
+style:
+	stylus static/style/style.styl -o static/style/dist
+

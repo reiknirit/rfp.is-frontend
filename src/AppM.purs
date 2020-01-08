@@ -3,7 +3,6 @@ module AppM where
 import Prelude
 import Control.Monad.Reader.Trans   (class MonadAsk, ReaderT
                                     , ask, asks, runReaderT)
-
 import Effect.Aff                   (Aff)
 import Effect.Aff.Class             (class MonadAff)
 import Effect.Class                 (class MonadEffect

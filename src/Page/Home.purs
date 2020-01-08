@@ -7,7 +7,6 @@ import Data.Symbol                  (SProxy(..))
 import Halogen                      as H
 import Halogen.HTML                 as HH
 
-import Component.Button as Button
 import Component.Utils              (OpaqueSlot)
 
 type State = Maybe Int
@@ -28,8 +27,4 @@ component =
 
   render :: State -> H.ComponentHTML Action ChildSlots m
   render state =
-    HH.div_
-      [ HH.h1_
-        [ HH.text "Button" ]
-      , HH.slot (SProxy :: _ "button") unit Button.component unit absurd
-      ]
+    HH.div_ []
