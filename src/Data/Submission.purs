@@ -1,6 +1,10 @@
 module Data.Submission where
 
 import Prelude
+import Data.Argonaut            (decodeJson
+                                ,encodeJson
+                                ,(~>), (:=)
+                                ,(.:), (.:?))
 import Data.Argonaut.Encode     (class EncodeJson)
 import Data.Argonaut.Decode     (class DecodeJson)
 import Data.Generic.Rep         (class Generic)
@@ -10,7 +14,7 @@ import Data.Newtype             (class Newtype)
 import Formless                 as F
 import Timestamp                (Timestamp)
 
-import Data.Attachment          (AttachmentArray)
+import Data.Attachment          (Attachment(..), AttachmentArray)
 
 newtype SubmissionId = SubmissionId Int
 
@@ -51,7 +55,23 @@ derive instance genericSubmission :: Generic Submission _
 derive instance eqSubmission :: Eq Submission
 derive instance ordSubmission :: Ord Submission
 
-derive newtype instance encodeJsonSubmission :: EncodeJson Submission
+instance encodeJsonSubmission :: EncodeJson Submission where
+  encodeJson (Submission submission)
+    = "fullName"     := submission.fullName
+    ~> "pronoun"     := submission.pronoun
+    ~> "refund"      := submission.refund
+    ~> "airport"     := submission.airport
+    ~> "title"       := submission.title
+    ~> "abstract"    := submission.abstract 
+    ~> "bio"         := submission.bio
+    ~> "comment"     := submission.comment
+    ~> "email"       := submission.email
+    ~> "phoneNumber" := submission.phoneNumber
+    ~> "website"     := submission.website
+    ~> "attachments" := map (\(Attachment attachment) -> attachment.id) submission.attachments
+    ~> "createdAt"   := submission.createdAt
+    ~> "updatedAt"   := submission.updatedAt
+
 derive newtype instance decodeJsonSubmission :: DecodeJson Submission
 
 instance showSubmission :: Show Submission where

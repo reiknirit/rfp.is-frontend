@@ -4,6 +4,7 @@ import Prelude
 import Data.Const                   (Const)
 import Data.Maybe                   (Maybe(..))
 import Data.Symbol                  (SProxy(..))
+import Effect.Class.Console         (logShow)
 import Effect.Aff.Class             (class MonadAff)
 import Formless                     as F
 import Halogen                      as H
@@ -14,6 +15,8 @@ import Component.HTML.Utils         (css)
 import Data.Submission              (Submission)
 import Form.Submission              as SubmissionForm
 import Resource.Attachment          (class ManageAttachment)
+import Resource.Submission          (class ManageSubmission
+                                    ,createSubmission)
 
 type State = {}
 
@@ -33,6 +36,7 @@ component :: forall m
            . Monad m
           => MonadAff m
           => ManageAttachment m
+          => ManageSubmission m
           => H.Component HH.HTML Query Unit Void m
 component =
   H.mkComponent
@@ -46,7 +50,9 @@ component =
   where
   handleAction = case _ of
     Initialize -> pure unit
-    HandleSubmission submission -> pure unit
+    HandleSubmission submission -> do
+      newSubmission <- createSubmission submission
+      logShow newSubmission
 
   render :: State -> H.ComponentHTML Action ChildSlots m
   render state =

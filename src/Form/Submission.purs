@@ -177,9 +177,13 @@ component = F.component (const input) F.defaultSpec
         (HH.textarea
           [ HP.rows 10
           , HP.cols 60
-          , HE.onValueInput $ Just <<< F.setValidate prx.airport 
+          , HE.onValueInput $ Just <<< F.setValidate prx.bio
           ])
         (F.getError prx.bio st.form)
+      , renderField
+        "Website"
+        (HH.input [ HE.onValueInput $ Just <<< F.setValidate prx.website ])
+        Nothing
       , renderField
         "Comment"
         (HH.textarea

@@ -18,6 +18,7 @@ import Data.Route                       (Route(..), routeCodec)
 import Page.Home                        as Home
 import Page.Submission                  as Submission
 import Resource.Attachment              (class ManageAttachment)
+import Resource.Submission              (class ManageSubmission)
 
 type State = 
   { route :: Maybe Route }
@@ -37,6 +38,7 @@ component
   :: forall m 
    . MonadAff m
   => ManageAttachment m
+  => ManageSubmission m
   => Navigate m
   => H.Component HH.HTML Query Unit Void m 
 component = H.mkComponent 

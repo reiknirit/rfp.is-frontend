@@ -10,6 +10,7 @@ import Routing.Duplex.Generic.Syntax    ((/))
 
 data Endpoint 
   = AttachmentUpload
+  | CreateSubmission
 
 derive instance genericEndpoint :: Generic Endpoint _
 
@@ -18,6 +19,7 @@ instance showEndpoint :: Show Endpoint where
 
 endpointCodec :: RouteDuplex' Endpoint
 endpointCodec = root $ sum
-  { "AttachmentUpload": "attachments" / "upload" / noArgs
+  { "AttachmentUpload" : "attachments" / "upload" / noArgs
+  , "CreateSubmission" : "submissions" / noArgs
   }
 
