@@ -43,8 +43,12 @@ input {
   outline: none;
 }
 input[type="checkbox"] {
-  margin: 0;
   padding: 0;
+  margin: 25px;
+  width: initial;
+}
+.error {
+  margin-top: 12.5px;
 }
 .error span {
   color: #ed4747;

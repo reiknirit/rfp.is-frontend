@@ -6,6 +6,7 @@ import Data.Const                       (Const(..))
 import Data.Maybe                       (Maybe(..))
 import Data.Newtype                     (class Newtype)
 import Data.Symbol                      (SProxy(..))
+import Data.String                      (null)
 import Data.Traversable                 (traverse)
 import Effect.Aff.Class                 (class MonadAff)
 import Formless                         as F
@@ -21,7 +22,7 @@ import Timestamp                        (Timestamp, nowTimestamp)
 import Component.HTML.Utils             (css, renderField)
 import Data.Attachment                  (AttachmentArray)
 import Data.Submission                  (SubmissionId(..), Submission(..))
-import Form.Error                       (FormError)
+import Form.Error                       (FormError(..))
 import Form.Validation                  (validateStr, validateStrMaybe)
 import Resource.Attachment              (class ManageAttachment
                                         ,uploadAttachment)
@@ -164,7 +165,9 @@ component = F.component (const input) F.defaultSpec
             "City of departure"
             "Let us know from where you expect to fly to Iceland."
             (HH.input [ HE.onValueInput $ Just <<< F.setValidate prx.airport ])
-            (if null (F.getInput prx.airport st.form) then Just Required else Nothing)
+            case (null $ F.getInput prx.airport st.form) of
+              true -> Just Required
+              false -> Nothing
           false -> HH.div [] []
       , renderField 
         "Title" 
