@@ -132,22 +132,27 @@ component = F.component (const input) F.defaultSpec
     HH.form_
       [ renderField 
         "Full Name*" 
+        ""
         (HH.input [ HE.onValueInput $ Just <<< F.setValidate prx.fullName ])
         (F.getError prx.fullName st.form)
       , renderField 
         "Pronoun" 
+        "S/he? It? Leave it empty? It's up to you!"
         (HH.input [ HE.onValueInput $ Just <<< F.setValidate prx.pronoun ])
         Nothing
       , renderField 
         "Email*" 
-        (HH.input [ HE.onValueInput $ Just <<< F.setValidate prx.email ])
+        ""
+        (HH.input [ HP.type_ HP.InputEmail, HE.onValueInput $ Just <<< F.setValidate prx.email ])
         (F.getError prx.email st.form)
       , renderField 
         "Phone*" 
-        (HH.input [ HE.onValueInput $ Just <<< F.setValidate prx.phoneNumber ])
+        ""
+        (HH.input [ HP.type_ HP.InputTel, HE.onValueInput $ Just <<< F.setValidate prx.phoneNumber ])
         (F.getError prx.phoneNumber st.form)
       , renderField 
         "Refund for flight" 
+        "We'll try to pay for your flight, hotel, a networking dinner and a visit to a world-renowned attraction."
         (HH.input 
           [ HP.type_ HP.InputCheckbox
           , HE.onChecked \_ -> Just $ F.modify prx.refund not
@@ -157,15 +162,18 @@ component = F.component (const input) F.defaultSpec
           true  -> 
             renderField
             "City of departure"
+            "Let us know from where you expect to fly to Iceland."
             (HH.input [ HE.onValueInput $ Just <<< F.setValidate prx.airport ])
-            Nothing
+            (if null (F.getInput prx.airport st.form) then Just Required else Nothing)
           false -> HH.div [] []
       , renderField 
         "Title" 
+        "It doesn't have to be final, but it does have to get us excited!"
         (HH.input [ HE.onValueInput $ Just <<< F.setValidate prx.title ])
         Nothing
       , renderField
         "Abstract"
+        "Summarise what you want to talk about."
         (HH.textarea
           [ HP.rows 10
           , HP.cols 60
@@ -174,6 +182,7 @@ component = F.component (const input) F.defaultSpec
         Nothing
       , renderField
         "Bio*"
+        "Tell us about you or your background."
         (HH.textarea
           [ HP.rows 10
           , HP.cols 60
@@ -182,10 +191,12 @@ component = F.component (const input) F.defaultSpec
         (F.getError prx.bio st.form)
       , renderField
         "Website"
+        "Do you, or an organization you're affiliated with, have a website, blog or code repository?"
         (HH.input [ HE.onValueInput $ Just <<< F.setValidate prx.website ])
         Nothing
       , renderField
         "Comment"
+        "Do you follow a strict diet? Do you have a disability? Let us know of any special requirement(s) so we can make arrangements beforehand."
         (HH.textarea
           [ HP.rows 10
           , HP.cols 60

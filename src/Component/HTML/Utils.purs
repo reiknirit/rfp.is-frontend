@@ -31,16 +31,17 @@ safeHref = HP.href
 
 renderField :: forall i p
              . String 
+            -> String
             -> HH.HTML i p
             -> (Maybe FormError) 
             -> HH.HTML i p
-renderField label html err = 
+renderField label title control err =
   HH.div
     [ css "field" ]
     [ HH.label
-      []
-      [ HH.text label ]
-    , html
+      [ HP.title title ]
+      [ HH.text label
+      , control ]
     , HH.div
       [ css "error" ]
       [ HH.span
