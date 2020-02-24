@@ -18,7 +18,10 @@ import Resource.Attachment          (class ManageAttachment)
 import Resource.Submission          (class ManageSubmission
                                     ,createSubmission)
 
-type State = {}
+type State = 
+  { statusMessage :: Maybe String
+  , complete :: Boolean
+  }
 
 data Action 
   = Initialize
@@ -30,7 +33,10 @@ type ChildSlots = (
 type Query = Const Void
 
 initialState :: State
-initialState = {}
+initialState = 
+  { statusMessage: Nothing
+  , complete: false
+  }
 
 component :: forall m
            . Monad m
@@ -52,13 +58,35 @@ component =
     Initialize -> pure unit
     HandleSubmission submission -> do
       newSubmission <- createSubmission submission
-      logShow newSubmission
+      case newSubmission of
+        Just submission -> 
+          H.modify_ _ 
+            { statusMessage = Just "Thank you for your submission. We have sent a confirmation to your email address."
+            , complete = true
+            }
+        Nothing -> 
+          H.modify_ _ 
+            { statusMessage = Just "An error occured"
+            , complete = false
+            }
 
   render :: State -> H.ComponentHTML Action ChildSlots m
   render state =
     HH.div 
       [] 
-      [ submissionForm ]
+      [ case state.complete of
+        true  -> HH.div_ []
+        false -> submissionForm 
+      , case state.statusMessage of
+          Just msg -> 
+            HH.div
+              [ css "status-message" ]
+              [ HH.p 
+                []
+                [ HH.text msg ]
+              ]
+          Nothing -> HH.div_ []
+      ]
 
     where
       submissionForm = 
