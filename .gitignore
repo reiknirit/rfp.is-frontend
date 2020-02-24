@@ -16,3 +16,5 @@ result
 
 build/
 dist/
+
+!static/style/dist
