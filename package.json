@@ -1,11 +1,14 @@
 {
   "name": "rfp-frontend",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
     "express": "^4.16.4",
     "pug": "^2.0.3",
     "uuid": "^3.3.3"
+  },
+  "devDependencies": {
+    "parcel": "^1.12.4"
   }
 }
