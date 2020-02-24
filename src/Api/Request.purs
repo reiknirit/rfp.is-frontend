@@ -8,25 +8,23 @@ import Affjax.ResponseFormat        as RF
 import Affjax.RequestHeader         (RequestHeader(..))
 import Control.Monad.Reader.Class   (class MonadAsk, ask, asks)
 import Data.Argonaut.Core           (Json)
+import Data.Argonaut.Encode         (class EncodeJson)
+import Data.Argonaut.Decode         (class DecodeJson)
 import Data.Either                  (Either(..), hush)
 import Data.Maybe                   (Maybe(..))
 import Data.HTTP.Method             (Method(..))
 import Data.Tuple                   (Tuple(..))
 import Effect.Aff.Class             (class MonadAff, liftAff)
+import Data.Generic.Rep             (class Generic)
+import Data.Generic.Rep.Show        (genericShow)
+import Data.Newtype                 (class Newtype)
 import Routing.Duplex               (print)
 import Web.XHR.FormData             (FormData)
-
-import Data.URL                     (BaseURL(..))
+  
 import Api.Endpoint                 (Endpoint(..)
                                     ,endpointCodec)
-
-newtype Token = Token String
-
-derive instance eqToken  :: Eq Token
-derive instance ordToken :: Ord Token
-
-instance showToken :: Show Token where
-  show (Token _) = "Token {- token -}"
+import Data.Auth                    (APIAuth(..))
+import Data.URL                     (BaseURL(..))
 
 data RequestMethod
   = Get
@@ -40,23 +38,28 @@ data FormDataRequestMethod
 type RequestOptions =
   { endpoint :: Endpoint
   , method   :: RequestMethod
+  , auth     :: Maybe APIAuth
   }
 
 type FormDataOptions =
   { endpoint :: Endpoint
   , method   :: FormDataRequestMethod
+  , auth     :: Maybe APIAuth
   }
 
+
 defaultRequest :: BaseURL        ->
-                  Maybe Token    ->
                   RequestOptions ->
                   Request Json
-defaultRequest (BaseURL baseURL) auth { endpoint, method } =
+defaultRequest (BaseURL baseURL) { endpoint, method, auth} =
   { method: Left method
   , url: baseURL <> print endpointCodec endpoint
   , headers: case auth of
+      Just (Basic token) -> do
+        [ RequestHeader "Authorization" $ "Basic " <> token ]
+      Just (Token token) -> 
+        [ RequestHeader "Authorization" $ "Bearer " <> token ]
       Nothing        -> []
-      Just (Token t) -> [ RequestHeader "Authorization" $ "Token " <> t ]
   , content: RB.json <$> body
   , username: Nothing
   , password: Nothing
@@ -71,15 +74,16 @@ defaultRequest (BaseURL baseURL) auth { endpoint, method } =
     Delete -> Tuple DELETE Nothing
 
 formDataRequest :: BaseURL         ->
-                   Maybe Token     ->
                    FormDataOptions ->
                    Request Json
-formDataRequest (BaseURL baseURL) auth { endpoint, method } =
+formDataRequest (BaseURL baseURL) { endpoint, method, auth} =
   { method: Left method
   , url: baseURL <> print endpointCodec endpoint
   , headers: case auth of
-      Nothing        -> []
-      Just (Token t) -> [ RequestHeader "Authorization" $ "Token " <> t ]
+      Just (Basic token) -> 
+        [ RequestHeader "Authorization" $ "Basic " <> token ]
+      Just      _          -> []
+      Nothing              -> []
   , content: RB.formData <$> body
   , username: Nothing
   , password: Nothing
@@ -97,7 +101,7 @@ mkRequest :: forall m r
           -> m (Maybe Json)
 mkRequest opts = do
   { apiURL } <- ask
-  response <- liftAff $ request $ defaultRequest apiURL Nothing opts
+  response <- liftAff $ request $ defaultRequest apiURL opts
   pure $ hush response.body
 
 mkFormDataRequest :: forall m r
@@ -107,5 +111,5 @@ mkFormDataRequest :: forall m r
                   -> m (Maybe Json)
 mkFormDataRequest opts = do
   { apiURL } <- ask
-  response <- liftAff $ request $ formDataRequest apiURL Nothing opts
+  response <- liftAff $ request $ formDataRequest apiURL opts
   pure $ hush response.body

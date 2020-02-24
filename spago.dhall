@@ -9,11 +9,13 @@ You can edit this file as you like.
 , dependencies =
     [ "affjax"
     , "argonaut"
+    , "b64"
     , "css"
     , "console"
     , "datetime"
     , "dotenv"
     , "effect"
+    , "encoding"
     , "express"
     , "formatters"
     , "halogen"

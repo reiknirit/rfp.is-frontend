@@ -10,6 +10,7 @@ import Effect.Aff                   (Aff)
 import Effect.Aff.Class             (class MonadAff)
 import Effect.Class                 (class MonadEffect
                                     , liftEffect)
+import Effect.Class.Console         (logShow)
 import Effect.Console               as Console
 import Type.Equality                (class TypeEquals, from)
 import Routing.Duplex               (print)
@@ -23,6 +24,7 @@ import Api.Endpoint                 (Endpoint(..))
 import Capability.LogMessages       (class LogMessages
                                     ,logMessage)
 import Capability.Navigate          (class Navigate)
+import Data.Auth                    (APIAuth(..), apiAuth)
 import Data.Environment             (Environment(..), Env)
 import Data.Log                     as Log
 import Data.Route                   as Route
@@ -62,6 +64,7 @@ instance manageAttachmentAppM :: ManageAttachment AppM where
     req <- mkFormDataRequest
       { endpoint: AttachmentUpload 
       , method: PostFormData $ Just formData
+      , auth: Just apiAuth
       }
     case req of
       Just json -> do
@@ -78,6 +81,7 @@ instance manageSubmissionAppM :: ManageSubmission AppM where
     req <- mkRequest
       { endpoint: CreateSubmission
       , method: Post $ Just $ encodeJson submission
+      , auth: Just apiAuth
       }
     case req of
       Just json -> do
