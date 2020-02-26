@@ -1,4 +1,16 @@
+@import url('https://fonts.googleapis.com/css?family=Noto+Sans&display=swap')
+@import 'queries'
+
 separator = 25px
+
+body
+  font-family: 'Noto Sans'
+
+.form-action 
+  width 100%
+
+  +mobile()
+    width calc(100% - 50px)
 
 .button
   display flex
@@ -12,6 +24,9 @@ separator = 25px
   color #000
   font-size 14px
   margin-bottom separator
+
+  +mobile()
+    width 100%
 
   &:hover
     background-color #000
@@ -31,6 +46,9 @@ form
   margin-bottom separator
   width 40%
   font-size 18px
+
+  +mobile()
+    width calc(100% - 50px)
 
   input
     font-size 18px
@@ -58,6 +76,9 @@ input[type="checkbox"]
 .dropbox-container
   width 40%
 
+  +mobile()
+    width calc(100% - 50px)
+
 .status-message
   display flex
   width 100%
@@ -69,3 +90,14 @@ input[type="checkbox"]
   p
     text-align center
     width 60%
+
+.text-center
+  text-align center
+
+.about
+  width 50%
+  margin 0 auto
+  margin-bottom separator
+
+  +mobile()
+    width calc(100% - 50px)

@@ -68,7 +68,7 @@ component = H.mkComponent
   render :: State -> H.ComponentHTML Action ChildSlots m
   render { route } = case route of
     Just Home -> 
-      HH.slot (SProxy :: _ "home") unit Home.component unit absurd
+      HH.slot (SProxy :: _ "submission") unit Submission.component unit absurd
     Just Submission ->
       HH.slot (SProxy :: _ "submission") unit Submission.component unit absurd
     Nothing ->
