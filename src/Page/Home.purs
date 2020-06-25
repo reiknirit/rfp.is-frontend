@@ -39,6 +39,6 @@ component =
         [ HH.text "Reykjavík Functional Programming" ]
       , HH.div
         [ css "stream text-center" ]
-        [ HH.slot (SProxy :: _ "html") unit RawHTML.component { html: "<iframe src='https://player.twitch.tv/?channel=rfpis&parent=streamernews.example.com' frameborder='0' allowfullscreen='true' scrolling='no' height='378' width='620'></iframe>", elRef: "testDiv" } absurd 
+        [ HH.slot (SProxy :: _ "html") unit RawHTML.component { html: "<iframe src='https://player.twitch.tv/?channel=rfpis&parent=rfp.is' frameborder='0' allowfullscreen='true' scrolling='no' height='378' width='620'></iframe>", elRef: "testDiv" } absurd 
         ]
       ]
