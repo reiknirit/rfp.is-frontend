@@ -22,6 +22,7 @@ You can edit this file as you like.
     , "halogen-css"
     , "halogen-formless"
     , "halogen-media"
+    , "halogen-rawhtml"
     , "precise-datetime"
     , "psci-support"
     , "routing"

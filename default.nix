@@ -1,11 +1,15 @@
-{ yarn2nixPath ? /Users/Donna/Code/K0TT/github/yarn2nix }:
+{ port ? "8080"
+, apiURL ? ""
+, apiKey ? ""
+, environment ? "Production"
+}:
   let
     pkgs = import ./packages.nix {};
     spagoPkgs = import ./spago-packages.nix { inherit pkgs; };
     easy-ps = import (pkgs.fetchFromGitHub {
       owner = "justinwoo";
       repo = "easy-purescript-nix";
-      rev = "refs/heads/master";
+      rev = "340e82b6ecaccc4059740e69f8ec18546b527481";
       sha256 = "1q2ciwd3193kig1paidzrgxl60y4rb39bsi97lk7m6ff8mis6z6i";
     }) { inherit pkgs; };
 
@@ -21,7 +25,13 @@
     };
     inherit (import gitignoreSrc { inherit (pkgs) lib; }) gitignoreSource;
 
-    yarn2nix = import yarn2nixPath { inherit pkgs; };
+    yarn = pkgs.fetchFromGitHub {
+      owner = "moretea";
+      repo  = "yarn2nix";
+      rev = "9e7279edde2a4e0f5ec04c53f5cd64440a27a1ae";
+      sha256 = "sha256:0zz2lrwn3y3rb8gzaiwxgz02dvy3s552zc70zvfqc0zh5dhydgn7";
+    };
+    yarn2nix = import yarn { inherit pkgs; };
     npm = yarn2nix.mkYarnPackage {
       name = "frontend-npm";
       src = ./.;
@@ -38,7 +48,7 @@
         easy-ps.purs easy-ps.spago npm pkgs.nodejs-12_x
       ];
       buildPhase = ''
-        ${removeHashBang spagoPkgs.installSpagoStyle}
+        ${spagoPkgs.installSpagoStyle}/bin/install-spago-style
         mkdir -p $out
         purs compile "$src/**/*.purs" ${builtins.toString
           (builtins.map
@@ -49,21 +59,30 @@
       '';
 
       installPhase = ''
-        mkdir -p $out/output/rfp.is
+        mkdir -p $out/output/rfp
         mkdir -p $out/static
+
         # Copy static files
+        cp -r $src/static/img   $out/static
         cp -r $src/static/style $out/static
         cp -r $src/static/views $out/static
-        cp $src/.env  $out/.env
+        echo PORTNR=${port} >> $out/.env
+        echo API_URL=${apiURL} >> $out/.env
+        echo API_KEY=${apiKey} >> $out/.env
+        echo ENVIRONMENT=${environment} >> $out/.env
+
         # Make bundle
         cd $out && spago bundle-app --no-install --no-build --to $out/static/build/index.js
+
         # Browserify bundle
         cd $out && ${npm}/libexec/rfp-frontend/node_modules/parcel/bin/cli.js build $out/static/build/index.js -d $out/static/dist
+
         # Bundle Server
-        cd $out && spago bundle-app --main Server --no-install --no-build --to $out/output/rfp.is/server.js
+        cd $out && spago bundle-app --main Server --no-install --no-build --to $out/output/rfp/server.js
         echo "#!/usr/bin/env bash" >> $out/run.sh
-        echo "${nodejs}/bin/node $out/output/rfp.is/server.js" >> $out/run.sh
+        echo "${nodejs}/bin/node $out/output/rfp/server.js" >> $out/run.sh
         chmod +x $out/run.sh
+
         echo "Build Done"
       '';
     }

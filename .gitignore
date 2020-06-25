@@ -18,3 +18,5 @@ build/
 dist/
 
 !static/style/dist
+
+.DS_Store

@@ -14,6 +14,7 @@ import Routing.Hash                     (getHash)
 
 import Capability.Navigate              (class Navigate, navigate)
 import Component.Utils                  (OpaqueSlot)
+import Component.HTML.Utils             (css)
 import Data.Route                       (Route(..), routeCodec)
 import Page.Home                        as Home
 import Page.Submission                  as Submission
@@ -33,6 +34,20 @@ type ChildSlots =
   ( home :: OpaqueSlot Unit 
   , submission :: OpaqueSlot Unit
   )
+
+wrapperContainer :: forall props act
+                  . HH.HTML props act
+                 -> HH.HTML props act
+wrapperContainer slot = 
+  HH.div
+    [ css "main-wrapper" ]
+    [ HH.div
+      [ css "transparent-layer" ]
+      []
+    , HH.div
+      [ css "content-wrapper" ]
+      [ slot ]
+    ]
 
 component
   :: forall m 
@@ -68,8 +83,8 @@ component = H.mkComponent
   render :: State -> H.ComponentHTML Action ChildSlots m
   render { route } = case route of
     Just Home -> 
-      HH.slot (SProxy :: _ "submission") unit Submission.component unit absurd
+      wrapperContainer $ HH.slot (SProxy :: _ "home") unit Home.component unit absurd
     Just Submission ->
-      HH.slot (SProxy :: _ "submission") unit Submission.component unit absurd
+      wrapperContainer $ HH.slot (SProxy :: _ "submission") unit Home.component unit absurd
     Nothing ->
-      HH.div_ [ HH.text "Oh no! That page wasn't found." ]
+      wrapperContainer $ HH.div_ [ HH.text "Oh no! That page wasn't found." ]
