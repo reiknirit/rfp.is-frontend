@@ -1,31 +1,30 @@
 module Form.Submission where
 
-import Prelude      
-import Data.Array                       (snoc)
-import Data.Const                       (Const(..))
-import Data.Maybe                       (Maybe(..))
-import Data.Newtype                     (class Newtype)
-import Data.Symbol                      (SProxy(..))
-import Data.String                      (null)
-import Data.Traversable                 (traverse)
-import Effect.Aff.Class                 (class MonadAff)
-import Formless                         as F
-import Halogen                          as H
-import Halogen.HTML                     as HH
-import Halogen.HTML.Events              as HE
-import Halogen.HTML.Properties          as HP
-import Halogen.Media.Component.Upload   as Upload
-import Halogen.Media.Data.File          (ExtendedFile(..))
-import Halogen.Media.Utils              (filesToFormData)
-import Timestamp                        (Timestamp, nowTimestamp)
+import Prelude
 
-import Component.HTML.Utils             (css, renderField)
-import Data.Attachment                  (AttachmentArray)
-import Data.Submission                  (SubmissionId(..), Submission(..))
-import Form.Error                       (FormError(..))
-import Form.Validation                  (validateStr, validateStrMaybe)
-import Resource.Attachment              (class ManageAttachment
-                                        ,uploadAttachment)
+import Component.HTML.Utils (css, renderField)
+import Data.Array (snoc)
+import Data.Attachment (AttachmentArray)
+import Data.Const (Const(..))
+import Data.Maybe (Maybe(..))
+import Data.Newtype (class Newtype)
+import Data.String (null)
+import Data.Submission (SubmissionId(..), Submission(..))
+import Data.Symbol (SProxy(..))
+import Data.Traversable (traverse)
+import Effect.Aff.Class (class MonadAff)
+import Form.Error (FormError(..))
+import Form.Validation (validateStr, validateStrMaybe)
+import Formless as F
+import Halogen as H
+import Halogen.HTML as HH
+import Halogen.HTML.Events as HE
+import Halogen.HTML.Properties as HP
+import Halogen.Media.Component.Upload as Upload
+import Halogen.Media.Data.File (ExtendedFile(..))
+import Halogen.Media.Utils (fileToFormData)
+import Resource.Attachment (class ManageAttachment, uploadAttachment)
+import Timestamp (Timestamp, nowTimestamp)
 
 newtype SubmissionForm r f = SubmissionForm (r
   ( id          :: f Void      SubmissionId    SubmissionId
@@ -100,18 +99,28 @@ component = F.component (const input) F.defaultSpec
       case output of
         Upload.DroppedFiles files -> do
           state <- H.get
-          formData <- H.liftEffect $ filesToFormData "file" files
-          newAttachment <- uploadAttachment formData
-          _ <- traverse (\(ExtendedFile f uuid t) -> do
-            H.query (SProxy :: SProxy "upload") unit (H.tell (Upload.SetUploadStatus uuid true))) files
-          -- add attachment to attachments
-          case newAttachment of
-            Just attachment -> do
-              let 
-                currAttachments = F.getInput prx.attachments state.form
-                newAttachments = snoc currAttachments attachment
-              eval $ F.setValidate prx.attachments newAttachments
-            Nothing -> pure unit
+          _ <- traverse  (\(ExtendedFile f uuid t) -> do
+            formData <- 
+              H.liftEffect $ 
+                fileToFormData
+                "image" 
+                (ExtendedFile f uuid t)
+            newAttachment <- uploadAttachment formData
+            -- Change upload status
+            _ <- H.query 
+              (SProxy :: SProxy "upload") 
+              unit 
+              (H.tell (Upload.SetUploadStatus uuid true))
+
+            -- Add attachment to the list of attachments
+            case newAttachment of
+              Just attachment -> do
+                let 
+                  currAttachments = F.getInput prx.attachments state.form
+                  newAttachments = snoc currAttachments attachment
+                eval $ F.setValidate prx.attachments newAttachments
+              Nothing -> pure unit
+          ) files
           pure unit
         _ -> pure unit
     where
