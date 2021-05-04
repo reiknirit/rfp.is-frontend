@@ -7,6 +7,7 @@ import Data.Symbol                  (SProxy(..))
 import Effect.Class                 (class MonadEffect)
 import Halogen                      as H
 import Halogen.HTML                 as HH
+import Halogen.HTML.Properties      as HP
 import Halogen.Component.RawHTML    as RawHTML
 
 import Component.Utils              (OpaqueSlot)
@@ -41,4 +42,11 @@ component =
         [ css "stream text-center" ]
         [ HH.slot (SProxy :: _ "html") unit RawHTML.component { html: "<iframe src='https://player.twitch.tv/?channel=rfpis&parent=rfp.is' frameborder='0' allowfullscreen='true' scrolling='no' height='378' width='620'></iframe>", elRef: "testDiv" } absurd 
         ]
+      , HH.p
+        [ css "text-center" ]
+        [ HH.text "Our next meetup will be online, May 5th 2021. Join us on Zoom:"]
+      , HH.a
+        [ css "text-center"
+        , HP.href "https://us02web.zoom.us/j/82568691732" ]
+        [ HH.text "https://us02web.zoom.us/j/82568691732" ]
       ]
