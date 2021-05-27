@@ -44,9 +44,9 @@ component =
         ]
       , HH.p
         [ css "text-center" ]
-        [ HH.text "Our next meetup will be online, May 5th 2021 at 7:30 PM. Join us on Zoom:"]
+        [ HH.text "Our next meetup will be online, June 5th 2021 at 5:30 PM. Join us on Zoom:"]
       , HH.a
         [ css "text-center"
-        , HP.href "https://us02web.zoom.us/j/82568691732" ]
-        [ HH.text "https://us02web.zoom.us/j/82568691732" ]
+        , HP.href "https://us02web.zoom.us/j/82053521996" ]
+        [ HH.text "https://us02web.zoom.us/j/82053521996" ]
       ]
